@@ -32,6 +32,7 @@ class LootTrackerRecord
 	private final String title;
 	private final String subTitle;
 	private final LootTrackerItem[] items;
+	private final long killIndex;
 	private final long timestamp;
 
 	/**

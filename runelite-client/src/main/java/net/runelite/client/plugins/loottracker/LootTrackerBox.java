@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.runelite.client.game.AsyncBufferedImage;
@@ -62,6 +63,8 @@ class LootTrackerBox extends JPanel
 	private final ItemManager itemManager;
 	@Getter(AccessLevel.PACKAGE)
 	private final String id;
+	private final long killIndex;
+	private final boolean showKillCount;
 
 	@Getter
 	private final List<LootTrackerRecord> records = new ArrayList<>();
@@ -74,14 +77,19 @@ class LootTrackerBox extends JPanel
 		final ItemManager itemManager,
 		final String id,
 		@Nullable final String subtitle,
+		final long killIndex,
 		final boolean hideIgnoredItems,
+		final boolean showKillCount,
 		final BiConsumer<String, Boolean> onItemToggle)
 	{
 		this.id = id;
+		this.killIndex = killIndex;
 		this.itemManager = itemManager;
 		this.onItemToggle = onItemToggle;
 		this.hideIgnoredItems = hideIgnoredItems;
+		this.showKillCount = showKillCount;
 
+		setLayout(new BorderLayout(0, 1));
 		setLayout(new BorderLayout(0, 1));
 		setBorder(new EmptyBorder(5, 0, 0, 0));
 
@@ -169,8 +177,16 @@ class LootTrackerBox extends JPanel
 	{
 		buildItems();
 
-		priceLabel.setText(StackFormatter.quantityToStackSize(totalPrice) + " gp");
-		priceLabel.setToolTipText(StackFormatter.formatNumber(totalPrice) + " gp");
+		if (showKillCount)
+		{
+			priceLabel.setText(StackFormatter.quantityToStackSize(totalPrice) + " gp : kill " + StackFormatter.quantityToStackSize(killIndex));
+			priceLabel.setToolTipText(StackFormatter.formatNumber(totalPrice) + " gp : kill " + StackFormatter.formatNumber(killIndex));
+		}
+		else
+		{
+			priceLabel.setText(StackFormatter.quantityToStackSize(totalPrice) + " gp");
+			priceLabel.setToolTipText(StackFormatter.formatNumber(totalPrice) + " gp");
+		}
 
 		final long kills = getTotalKills();
 		if (kills > 1)

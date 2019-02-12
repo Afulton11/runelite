@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Psikoi <https://github.com/psikoi>
+ * Copyright (c) 2018, Afulton11
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,50 +22,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package net.runelite.client.plugins.loottracker;
 
-import net.runelite.client.config.Config;
-import net.runelite.client.config.ConfigGroup;
-import net.runelite.client.config.ConfigItem;
+import org.apache.commons.lang3.mutable.MutableLong;
 
-@ConfigGroup("loottracker")
-public interface LootTrackerConfig extends Config
-{
-	@ConfigItem(
-		keyName = "ignoredItems",
-		name = "Ignored items",
-		description = "Configures which items should be ignored when calculating loot prices."
-	)
-	default String getIgnoredItems()
-	{
-		return "";
-	}
+import java.util.HashMap;
+import java.util.Map;
 
-	@ConfigItem(
-		keyName = "ignoredItems",
-		name = "",
-		description = ""
-	)
-	void setIgnoredItems(String key);
+public class LootTrackerKillCounter {
+    private final Map<String, MutableLong> eventKillCount = new HashMap();
 
-	@ConfigItem(
-		keyName = "saveLoot",
-		name = "Save loot",
-		description = "Save loot between client sessions (requires being logged in)"
-	)
-	default boolean saveLoot()
-	{
-		return true;
-	}
+    long incrementAndGet(String eventId)
+    {
+        final MutableLong value = eventKillCount.get(eventId);
+        if (value == null)
+        {
+            eventKillCount.put(eventId, new MutableLong(1));
+            return 1;
+        }
+        else
+        {
+            return value.incrementAndGet();
+        }
+    }
 
-	@ConfigItem(
-		keyName = "showKillIndicies",
-		name = "Show Kill Indicies",
-		description = "Whether or not to show the kill number next to the individual loot"
-	)
-	default boolean shouldShowKillIndicies()
-	{
-		return true;
-	}
 }

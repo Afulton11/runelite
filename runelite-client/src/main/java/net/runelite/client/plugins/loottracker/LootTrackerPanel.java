@@ -35,6 +35,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.inject.Inject;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -103,6 +104,7 @@ class LootTrackerPanel extends PluginPanel
 	private boolean groupLoot;
 	private boolean hideIgnoredItems;
 	private String currentView;
+	private long overallKills;
 
 	static
 	{
@@ -331,10 +333,10 @@ class LootTrackerPanel extends PluginPanel
 	 * Creates a subtitle, adds a new entry and then passes off to the render methods, that will decide
 	 * how to display this new data.
 	 */
-	void add(final String eventName, final int actorLevel, LootTrackerItem[] items)
+	void add(final String eventName, final int actorLevel, LootTrackerItem[] items, long killIndex)
 	{
 		final String subTitle = actorLevel > -1 ? "(lvl-" + actorLevel + ")" : "";
-		final LootTrackerRecord record = new LootTrackerRecord(eventName, subTitle, items, System.currentTimeMillis());
+		final LootTrackerRecord record = new LootTrackerRecord(eventName, subTitle, items, killIndex, System.currentTimeMillis());
 		records.add(record);
 		LootTrackerBox box = buildBox(record);
 		if (box != null)
@@ -451,8 +453,11 @@ class LootTrackerPanel extends PluginPanel
 		actionsContainer.setVisible(true);
 		overallPanel.setVisible(true);
 
+
+		final boolean showKillCount = plugin.getConfig().shouldShowKillIndicies() && !groupLoot;
+
 		// Create box
-		final LootTrackerBox box = new LootTrackerBox(itemManager, record.getTitle(), record.getSubTitle(), hideIgnoredItems, plugin::toggleItem);
+		final LootTrackerBox box = new LootTrackerBox(itemManager, record.getTitle(), record.getSubTitle(), record.getKillIndex(), hideIgnoredItems, showKillCount, plugin::toggleItem);
 		box.combine(record);
 
 		// Create popup menu
@@ -506,7 +511,7 @@ class LootTrackerPanel extends PluginPanel
 
 	private void updateOverall()
 	{
-		long overallKills = 0;
+		overallKills = 0;
 		long overallGp = 0;
 
 		for (LootTrackerRecord record : records)
